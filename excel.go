@@ -2,6 +2,7 @@ package excel
 
 import (
 	"encoding/csv"
+	"fmt"
 	"github.com/tealeg/xlsx"
 	"os"
 )
@@ -24,6 +25,10 @@ func ExtractColumns(
 	if err != nil {
 		return data, err
 	}
+	if sheetIndex > len(f.Sheets) {
+		return data, fmt.Errorf(
+			"sheet index '%v' out of bounds '%v'", sheetIndex, len(f.Sheets))
+	}
 	sheet := f.Sheets[sheetIndex]
 	for index, row := range sheet.Rows {
 		if rowEndsAt != -1 &&
@@ -35,7 +40,12 @@ func ExtractColumns(
 			continue
 		}
 		r := []string{}
+		cellAmount := len(row.Cells)
 		for _, index := range columnIndices {
+			if index > cellAmount {
+				return data, fmt.Errorf(
+					"cell index '%v' out of bounds '%v'", index, cellAmount)
+			}
 			r = append(r, row.Cells[index].String())
 		}
 		data = append(data, r)
