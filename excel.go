@@ -58,8 +58,8 @@ func MakeFileXLSX(
 	data [][]string,
 	sheetName string,
 ) (err error) {
-	output := xlsx.NewFile()
-	sheet, _ := output.AddSheet(sheetName)
+	file := xlsx.NewFile()
+	sheet, _ := file.AddSheet(sheetName)
 	for _, r := range data {
 		row := sheet.AddRow()
 		for _, item := range r {
@@ -67,7 +67,7 @@ func MakeFileXLSX(
 			cell.Value = item
 		}
 	}
-	err = output.Save(fileName)
+	err = file.Save(fileName)
 	if err != nil {
 		return err
 	}
