@@ -14,6 +14,12 @@ const (
 	SEPARATOR_COMMA
 )
 
+const (
+	OUTPUT_TYPE_TXT  = "txt"
+	OUTPUT_TYPE_CSV  = "csv"
+	OUTPUT_TYPE_XLSX = "xlsx"
+)
+
 func ExtractColumns(
 	fileName string,
 	sheetIndex int,
