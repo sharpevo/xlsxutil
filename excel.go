@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/tealeg/xlsx"
 	"os"
+	"strings"
 )
 
 type Separator int
@@ -52,7 +53,8 @@ func ExtractColumns(
 				return data, fmt.Errorf(
 					"cell index '%v' out of bounds '%v'", index, cellAmount)
 			}
-			r = append(r, row.Cells[index].String())
+			str := row.Cells[index].String()
+			r = append(r, strings.TrimRight(str, "\r\n"))
 		}
 		data = append(data, r)
 	}
