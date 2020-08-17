@@ -10,6 +10,12 @@ import (
 
 type Separator int
 
+type TerminateLoopError struct{}
+
+func (e *TerminateLoopError) Error() string {
+	return ""
+}
+
 const (
 	SEPARATOR_TAB Separator = iota
 	SEPARATOR_COMMA
@@ -28,35 +34,47 @@ func ExtractColumns(
 	rowEndsAt int,
 	columnIndices []int,
 ) (data [][]string, err error) {
+	return extractColumnsByIndices(
+		fileName, sheetIndex, rowStartsAt, rowEndsAt, columnIndices)
+}
+
+func extractColumnsByIndices(
+	fileName string,
+	sheetIndex int,
+	rowStartsAt int,
+	rowEndsAt int,
+	columnIndices []int,
+) (data [][]string, err error) {
 	f, err := xlsx.OpenFile(fileName)
 	if err != nil {
 		return data, err
 	}
-	if sheetIndex > len(f.Sheets) {
-		return data, fmt.Errorf(
-			"sheet index '%v' out of bounds '%v'", sheetIndex, len(f.Sheets))
+	sheet, err := getSheetByIndex(f, sheetIndex)
+	if err != nil {
+		return data, err
 	}
-	sheet := f.Sheets[sheetIndex]
-	for index, row := range sheet.Rows {
-		if rowEndsAt != -1 &&
-			index > rowEndsAt {
-			break
+	if rowEndsAt == xlsx.NoRowLimit {
+		rowEndsAt = sheet.MaxRow - 1
+	}
+	if err := sheet.ForEachRow(func(row *xlsx.Row) error {
+		index := row.GetCoordinate()
+		if index > rowEndsAt {
+			return &TerminateLoopError{}
 		}
-		if index < rowStartsAt ||
-			row.Cells[1].String() == "" {
-			continue
+		if index < rowStartsAt {
+			return nil
 		}
 		r := []string{}
-		cellAmount := len(row.Cells)
 		for _, index := range columnIndices {
-			if index > cellAmount {
-				return data, fmt.Errorf(
-					"cell index '%v' out of bounds '%v'", index, cellAmount)
-			}
-			str := row.Cells[index].String()
-			r = append(r, strings.TrimRight(str, "\r\n"))
+			cell := row.GetCell(index)
+			r = append(r, strings.TrimRight(cell.String(), "\r\n"))
 		}
 		data = append(data, r)
+		return nil
+	}); err != nil {
+		if _, ok := err.(*TerminateLoopError); !ok {
+			return data, err
+		}
 	}
 	return data, nil
 }
