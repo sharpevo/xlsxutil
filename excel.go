@@ -79,6 +79,26 @@ func extractColumnsByIndices(
 	return data, nil
 }
 
+func ExtractColumnsByIds(
+	fileName string,
+	sheetIndex int,
+	rowStartsAt int,
+	rowEndsAt int,
+	columnIds []string,
+) (data [][]string, err error) {
+	columnIndices := []int{}
+	for _, coord := range columnIds {
+		columnIndex, _, err := xlsx.GetCoordsFromCellIDString(
+			fmt.Sprintf("%s1", coord))
+		if err != nil {
+			return data, err
+		}
+		columnIndices = append(columnIndices, columnIndex)
+	}
+	return extractColumnsByIndices(
+		fileName, sheetIndex, rowStartsAt, rowEndsAt, columnIndices)
+}
+
 func MakeFileXLSX(
 	fileName string,
 	data [][]string,
