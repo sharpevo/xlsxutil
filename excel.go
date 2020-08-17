@@ -99,6 +99,16 @@ func ExtractColumnsByIds(
 		fileName, sheetIndex, rowStartsAt, rowEndsAt, columnIndices)
 }
 
+func getSheetByIndex(file *xlsx.File, index int) (*xlsx.Sheet, error) {
+	maxSheet := len(file.Sheets)
+	if index > maxSheet-1 {
+		return nil, fmt.Errorf(
+			"sheet index out of range [%d] with lengith %d", index, maxSheet)
+	}
+	return file.Sheets[index], nil
+
+}
+
 func MakeFileXLSX(
 	fileName string,
 	data [][]string,
