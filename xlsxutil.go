@@ -1,4 +1,4 @@
-package excelutil
+package xlsxutil
 
 import (
 	"encoding/csv"
