@@ -62,7 +62,8 @@ func extractColumnsByIndices(
 		if index > rowEndsAt {
 			return &TerminateLoopError{}
 		}
-		if index < rowStartsAt {
+		if index < rowStartsAt ||
+			row.GetCell(1).String() == "" {
 			return nil
 		}
 		r := []string{}
@@ -72,7 +73,7 @@ func extractColumnsByIndices(
 		}
 		data = append(data, r)
 		return nil
-	}); err != nil {
+	}, xlsx.SkipEmptyRows); err != nil {
 		if _, ok := err.(*TerminateLoopError); !ok {
 			return data, err
 		}
