@@ -3,9 +3,10 @@ package excelutil
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/tealeg/xlsx"
 	"os"
 	"strings"
+
+	"github.com/tealeg/xlsx/v3"
 )
 
 type Separator int
